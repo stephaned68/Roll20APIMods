@@ -73,7 +73,7 @@ var SheetWorkerChat =
      * @param {string} msg
      * @param {boolean} force
      */
-    function sendLog(msg, force = true) {
+    function writeLog(msg, force = true) {
       if (state[stateKey].logging || force) {
         if (typeof msg !== "object") {
           log(`${modName} | ${msg}`);
@@ -86,13 +86,27 @@ var SheetWorkerChat =
     }
 
     /**
+     * Send a non archived message to chat
+     * @param {string} message 
+     */
+    function writeChat(message) {
+      sendChat(
+        modName,
+        message,
+        null, 
+        { noarchive: true }
+      );
+    }    
+
+    /**
      * Display configuration options
      */
     function configDisplay() {
       let helpMsg = gmOnly + `&{template:default} {{name=${modName} v${modVersion} Config}}`;
       helpMsg += `{{Attribute name=${state[stateKey].attrName} [Change](${modCmd} config --attr ?{Attribute name})}}`;
       helpMsg += `{{Logging=${state[stateKey].logging} [Toggle](${modCmd} config --logging) }}`;
-      sendChat(modName, helpMsg, null, {noarchive: true});
+      
+      writeChat(helpMsg);
     }
 
     /**
@@ -133,14 +147,21 @@ var SheetWorkerChat =
         helpMsg += `{{${help.command}=${help.description} }}`;
       });
 
-      sendChat(modName, helpMsg, null, {noarchive: true});
+      writeChat(helpMsg);
     }
 
     /**
      * Process the MOD chat command
      * @param {string[]} args command line arguments
      */
-    function processCmd(args) {
+    function handleInput(args) {
+      const [cmd, ...args] = msg.content.replace(/<br\/>/g, "").split(/\s+/);
+      if (args.length > 0) {
+        if ((args[0] || "") === "{{") args.shift();
+        if ((args[args.length - 1] || "") === "}}") args.pop();
+      }
+
+      if (msg.type !== "api" || cmd.indexOf(modCmd) === -1) return;
       
       const action = args[0] || "";
 
@@ -196,8 +217,7 @@ var SheetWorkerChat =
       const characterId = attributeObj.get("_characterid");
 
       // get message object
-      const message = attributeObj.get("current");
-      if (!message) return;
+      const message = attributeObj.get("current") || "";
       if (message.trim() === "") return;
       const messageObj = JSON.parse(message);
       if (!messageObj.text && !messageObj.rollTemplate) return;
@@ -227,8 +247,13 @@ var SheetWorkerChat =
           }
         }
       }
-      const text = `${whisper}${rollTemplate}${msgText}`;
-      sendChat(who, text);
+      
+      sendChat(
+        who, 
+        `${whisper}${rollTemplate}${msgText}`,
+        null, 
+        { noarchive: true }
+      );
     }
 
     /**
@@ -252,34 +277,21 @@ var SheetWorkerChat =
     function checkInstall() {
       if (!state[stateKey]) state[stateKey] = defaultState;
 
-      sendChat(modName, `Type '${modCmd} help' for help on commands`, null, {noarchive: true});
-      sendChat(modName, `Type '${modCmd} config' to configure the MOD script`, null, {noarchive: true});
+      writeChat(`Type '${modCmd} help' for help on commands`);
+      writeChat(`Type '${modCmd} config' to configure the MOD script`);
 
       if (state[stateKey].version !== modVersion) {
         migrateState();
       }
 
-      sendLog(state[stateKey], true);
+      writeLog(state[stateKey], true);
     }
 
     function registerEventHandlers() {
       /**
        * Wire-up event for API chat message
        */
-      on("chat:message", function (msg) {
-        // parse chat message
-        // cmd : command entered
-        // args[] : list of arguments
-        const [cmd, ...args] = msg.content.replace(/<br\/>/g, "").split(/\s+/);
-        if (args.length > 0) {
-          if ((args[0] || "") === "{{") args.shift();
-          if ((args[args.length - 1] || "") === "}}") args.pop();
-        }
-
-        if (msg.type == "api" && cmd.indexOf(modCmd) === 0) {
-          processCmd(args);
-        }
-      });
+      on("chat:message", handleInput);
 
       /**
        * Wire-up event for attribute current value change

@@ -28,6 +28,20 @@ var MultiAttack =
     const modCmd = "!ma";
     const modHelpHandout = "Mod-MultiAttack-Help";
 
+    /**
+     * Send a non archived message to chat
+     * @param {string} message 
+     */
+    function writeChat(message) {
+      sendChat(
+        modName,
+        message,
+        null, 
+        { noarchive: true }
+      );
+    }
+    
+
     function checkInstall() {
       let helpHandout = findObjs({
         _type:	"handout",
@@ -84,7 +98,7 @@ var MultiAttack =
       });
       if (!macro) return;
       if (macro.id) {
-        sendChat("Mod:MultiAttack", `/w gm Macro ${macroName} created successfully`, null, {noarchive: true});
+        writeChat(`/w gm Macro ${macroName} created successfully`);
       }
     }
 
@@ -105,7 +119,7 @@ var MultiAttack =
       attackList.forEach((index) => {
         chatMsg += `\n%{${charName}|repeating_npcaction_$${index - 1}_npc_action}`;
       });
-      sendChat("Mod:MultiAttack", `/w gm @{${charName}|repeating_npcaction_$0_description} ` + chatMsg);
+      writeChat(`/w gm @{${charName}|repeating_npcaction_$0_description} ` + chatMsg);
     }
 
     /**

@@ -10,7 +10,7 @@ v1.0.0
 
 La syntaxe de base de ce MOD est la suivante
 
-<kbd>!ma _characteid_ _no,...,no_</kbd>
+<kbd>!ma _characterid_ _no,...,no_</kbd>
 
 Où <kbd>_characterid_</kbd> est l'id du personnage
 

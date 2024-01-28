@@ -1,7 +1,7 @@
 /**
  * @name GMNotes
  * @author stephaned68
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 var GMNotes =
@@ -12,8 +12,21 @@ var GMNotes =
      * Constants
      */
     const modName = "GMNotes";
-    const modVersion = "1.0.0";
+    const modVersion = "1.0.1";
     const modCommand = [ "!gmnote", "!gmnotes", "!avatar" ];
+
+    /**
+     * Send a non archived message to chat
+     * @param {string} message 
+     */
+    const writeChat = function (message) {
+      sendChat(
+        `MOD:${modName}`,
+        message,
+        null, 
+        { noarchive: true }
+      );
+    }
 
     /**
      * Retrieve properties that need asynchronous
@@ -73,12 +86,7 @@ var GMNotes =
 
       if (!avatarSrc) return;
 
-      sendChat(
-        `MOD:${modName}`,
-        `/desc ${characterName} ${avatarSrc}`,
-        null, 
-        { noarchive: true }
-      );
+      writeChat(`/desc ${characterName} ${avatarSrc}`);
 
     }
     
@@ -95,13 +103,9 @@ var GMNotes =
       gmNotes = decodeUnicode(gmNotes);
       gmNotes = unescape(gmNotes);
 
-      sendChat(
-        `MOD:${modName}`,
-        `/w gm <div style="width: calc(100% - 10px); padding: 5px; border: 1px solid #333; border-radius: 5px; background: white; box-shadow: 5px 5px 5px #333;">${gmNotes}</div>`,
-        null, 
-        { noarchive: true }
-      );
-      
+      writeChat(
+        `/w gm <div style="width: calc(100% - 10px); padding: 5px; border: 1px solid #333; border-radius: 5px; background: white; box-shadow: 5px 5px 5px #333;">${gmNotes}</div>`
+      );      
     }
 
     /**
@@ -112,13 +116,13 @@ var GMNotes =
     const handleInput = function (msg) {
       if (msg.type !== "api") return;
 
-      const command = msg.content.split(" ")[0];
-      if (!modCommand.includes(command)) return;
+      const [ command ] = msg.content.split(" ");
+      if (!command || !modCommand.includes(command)) return;
 
-      const selected = msg.selected[0];
+      const [ selected ] = msg.selected;
 
       if (!selected) {
-        log("No token selected");
+        writeChat("Sélectionnez d'abord un token");
         return;
       }
 
@@ -146,5 +150,5 @@ var GMNotes =
 on("ready", function () {
   on("chat:message", GMNotes.handleInput);
 
-  log(`${GMNotes.name} version ${GMNotes.version} loaded`);
+  log(`Mod:${GMNotes.name} version ${GMNotes.version} loaded`);
 });

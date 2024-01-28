@@ -11,6 +11,11 @@ var TableRoller =
     const modVersion = "1.0.0";
     const modCommand = "!tbr";
 
+    /**
+     * Return player's color
+     * @param {string} playerId player id
+     * @returns {string} color value in hex format (#rrggbb)
+     */
     const getBackColor = function (playerId) {
       const [ player ] = findObjs({
         _type: "player",
@@ -26,6 +31,8 @@ var TableRoller =
      * @returns {string}
      */
     const invertColor = function (hexColor, blackOrWhite) {
+      if (!hexColor) return;
+
       if (hexColor.indexOf('#') === 0) {
           hexColor = hexColor.slice(1);
       }
@@ -55,35 +62,35 @@ var TableRoller =
       return "#" + ("0" + r).slice(-2) + ("0" + g).slice(-2) + ("0" + b).slice(-2);
     }
 
-    const handleInput = function (msg) {
-      if (msg.type !== "api") return;
+    /**
+     * Return player's colors
+     * @param {string} playerId Player's id
+     * @returns {object} backround and text colors
+     */
+    const playerColors = function (playerId) {
+      const background = getBackColor(playerId);
+      return {
+        background,
+        text: invertColor(background, true)
+      };
+    }
 
-      const backColor = getBackColor(msg.playerid);
-      const titleColor = invertColor(backColor, true)
-
-      let args = msg.content.split(" ");
-      
-      const command = args.shift();
-      if (command !== modCommand) return;
-      
-      const rollTable = args.shift();
-      if (!rollTable) {
-        log("Missing rollable table name");
-        return;
-      }
-
-      const title = args.join(" ") || rollTable;
-
+    /**
+     * Pick a random item on a rollable table
+     * @param {string} tableName Rollable table name
+     * @returns {string} result of the roll
+     */
+    const pickItem = function (tableName) {
       const rollableTable = findObjs(
         {
           _type: "rollabletable",
-          name: rollTable,
+          name: tableName,
         },
         { caseInsensitive: true }
       )[0];
       if (!rollableTable) {
-        log(`Rollable table ${rollTable} not found`);
-        return;
+        log(`Rollable table ${tableName} not found`);
+        return "";
       }
 
       const rollTableItems = findObjs({
@@ -91,8 +98,8 @@ var TableRoller =
         _rollabletableid: rollableTable.get("_id"),
       });
       if (rollTableItems.length === 0) {
-        log(`No items found for table ${rollTable}`);
-        return;
+        log(`No items found for table ${tableName}`);
+        return "";
       }
 
       const rollItems = [];
@@ -103,12 +110,35 @@ var TableRoller =
         }
       });
 
-      const item = rollItems[randomInteger(rollItems.length) - 1];
+      return rollItems[randomInteger(rollItems.length) - 1];
+    }
+
+    /**
+     * Handle chat input
+     * @param {object} msg Chat message object
+     * @returns {void}
+     */
+    const handleInput = function (msg) {
+      if (msg.type !== "api") return;
+
+      const [ command, rollTable, ...args ] = msg.content.split(" ");
+      
+      if (command !== modCommand) return;
+      if (!rollTable) {
+        log("Missing rollable table name");
+        return;
+      }
+
+      const colors = playerColors(msg.playerid);
+      const title = args.join(" ") || rollTable;
+
+      const result = pickItem(rollTable);
+      if (!result) return;
 
       const htmlTemplate = `<div style="width: calc(100% - 10px); border: 1px solid #333; border-radius: 5px; background: white; box-shadow: 5px 5px 5px #333;">${
-        `<span style="display: inline-block; width: 100%; border-radius: 5px 5px 0 0; text-align: center; background-color: ${backColor}; color:${titleColor};">${title}</span>`
+        `<span style="display: inline-block; width: 100%; border-radius: 5px 5px 0 0; text-align: center; background-color: ${ colors.background }; color:${ colors.text };">${title}</span>`
       }${
-        `<div style="padding: 5px;">${item}</div>`
+        `<div style="padding: 5px;">${result}</div>`
       }</div>`; 
 
       sendChat(
@@ -122,6 +152,7 @@ var TableRoller =
     return {
       name: modName,
       version: modVersion,
+      pickItem,
       handleInput,
     };
   })();
@@ -129,5 +160,5 @@ var TableRoller =
 on("ready", function () {
   on("chat:message", TableRoller.handleInput);
 
-  log(`${TableRoller.name} version ${TableRoller.version} loaded`);
+  log(`Mod:${TableRoller.name} version ${TableRoller.version} loaded`);
 });
