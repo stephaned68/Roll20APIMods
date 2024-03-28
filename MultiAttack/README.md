@@ -30,7 +30,7 @@ Une fois la macro créée, il est possible de la faire apparaître dans la barre
 
 Sur la fiche de PNJ, on doit indiquer la liste des attaques à lancer dans le champ du type de dégâts (non utilisé) de l'action _Attaques multiples_ sous la forme d'une suite de commandes d'attaques séparées par des virgules.
 
-Chaque commande d'attaque est exprimée sous la forme <kbd>nom*nombre</kbd>, où {nom} est le nom d'une action d'attaque. Ce nom peut être partiel mais il doit être suffisamment unique pour être identifié par le script.
+Chaque commande d'attaque est exprimée sous la forme <kbd>nom*nombre</kbd>, où <kbd>nom</kbd> est le nom d'une action d'attaque. Ce nom peut être partiel mais il doit être suffisamment unique pour être identifié par le script.
 
 ### Exemple
 
