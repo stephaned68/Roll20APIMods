@@ -2,6 +2,8 @@
  * @name TableRoller
  * @author stephaned68
  * @version 1.0.0
+ * 
+ * Throw on a rollable table and display pretty result in chat
  */
 
 var TableRoller =
@@ -160,5 +162,5 @@ var TableRoller =
 on("ready", function () {
   on("chat:message", TableRoller.handleInput);
 
-  log(`Mod:${TableRoller.name} version ${TableRoller.version} loaded`);
+  log(`Mod:${TableRoller.name} version ${TableRoller.version} running`);
 });

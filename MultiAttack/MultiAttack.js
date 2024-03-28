@@ -1,21 +1,23 @@
 /**
  * @name MultiAttack
  * @author stephaned68
- * @version 1.0.0
+ * @version 2.0.0
  * 
  * This MOD script needs to be used with a macro that has the following command :
  * !ma @{selected|character_id} @{selected|repeating_npcaction_$0_attack_damagetype}
  * This macro can be created by the script with the following command :
  * !ma-macro <Macro Name>
  * Check the box to have the macro appear in the macro-bar at the bottom of the screen
- * 
- * The damage type on the Multiattack action on the statblock must be set as a list of comma-separated action numbers
- * Each number represent an attack in the action's list.
+ *
+ * The damage type on the Multiattack action on the statblock must be set as a list of comma-separated action commands
+ * Each action command has the following format : <code>name*number</code>
+ * The name does not have to reflect exactly the name setup on the sheet
+ * A partial name will work as long as it is sufficently unique to find the attack action
+ * The search for a matching action is case insensitive
  * Example :
  * The Multiattack action is first on the Xorn statblock and reads as :
  * "The xorn makes three claw attacks and one bite attack."
- * 2nd action is claw attack, 3rd action is bite attack
- * In the Multiattack damage type, enter : 2,2,2,3
+ * In the Multiattack damage type, enter : claw*3,bite
  * 
  * To use the MOD, select an NPC token and click the macro button
  */
@@ -24,7 +26,7 @@ var MultiAttack =
   (function () {
 
     const modName = `Mod:MultiAttack`;
-    const modVersion = "1.0.0";
+    const modVersion = "2.0.0";
     const modCmd = "!ma";
     const modHelpHandout = "Mod-MultiAttack-Help";
 
@@ -65,14 +67,21 @@ var MultiAttack =
         <hr>
         <h2>Setting up NPC sheets</h2>
         <p>
-        The damage type on the Multiattack action on the statblock must be set as a list of comma-separated action numbers. Each number represent an attack in the action's list.
+        The damage type on the Multiattack action on the statblock must be set as a list of comma-separated action commands.<br>
+        Each action command has the following format : <code>name*number</code>.<br>
+        The name does not have to reflect exactly the name setup on the sheet, a partial name will work as long as it is sufficently unique to find the attack action.<br>
+        The search for a matching action is case insensitive.
         </p>
         <p>
         <strong>Example :</strong>
         <br>The Multiattack action is first on the Xorn statblock and reads as :
         <br><em>"The xorn makes three claw attacks and one bite attack."</em>
-        <br>2nd action is claw attack, 3rd action is bite attack.
-        <br>In the Multiattack damage type, enter : <code>2,2,2,3</code>
+        <br>In the Multiattack damage type, simply enter : <code>claw*3,bite</code>
+        </p>
+        <p>
+        You can combine these action commands with Roll20 queries.<br>
+        <strong>Example :</strong>
+        <code>?{Attack with ?|Bite,bite*2|Tentacle,tentacle*2},slam</code>
         </p>
         <hr>
         <h2>Usage</h2>
@@ -103,23 +112,45 @@ var MultiAttack =
     }
 
     /**
-     * Process multiattack chat message
+     * Build multi-attack chat message
      * @param {string} charId character id
      * @param {string} attacks list of attack numbers
-     * @returns {void}
+     * @returns {string} message to output to chat
      */
     function multiAttack(charId, attacks) {
       if (!attacks) return;
+
       // get character name
       character = getObj("character", charId);
       const charName = character.get("name");
-      // build and send chat message
+
+      // build chat message
       let chatMsg = "";
-      const attackList = JSON.parse(`[${attacks}]`) || [];
-      attackList.forEach((index) => {
-        chatMsg += `\n%{${charName}|repeating_npcaction_$${index - 1}_npc_action}`;
+      const attackList = attacks.split(",");
+      attackList.forEach((attack) => {
+        let [ atkName, atkCount ] = attack.split("*");
+        atkCount = parseInt(atkCount) || 1;
+        const rowId = findObjs({
+          _type: "attribute",
+          _characterid: charId
+        }).reduce((rows, attr) => { // build list of npcaction row ids
+          const name = attr.get("name");
+          if (name.startsWith("repeating_npcaction")) {
+            const rowId = name.split("_")[2];
+            if (!rows.includes(rowId)) rows.push(rowId);
+          }
+          return rows;
+        }, []).filter(rowId => { // get the rowid for name
+          const action = getAttrByName(charId, `repeating_npcaction_${rowId}_name`);
+          return action.toLowerCase().includes(atkName.toLowerCase());
+        })[0];
+        if (!rowId) return;
+        for (let atk = 1; atk <= atkCount; atk++) {
+          chatMsg += `\n%{${charName}|repeating_npcaction_${rowId}_npc_action}`;
+        }
       });
-      writeChat(`/w gm @{${charName}|repeating_npcaction_$0_description} ` + chatMsg);
+
+      return `@{${charName}|repeating_npcaction_$0_description} ` + chatMsg;
     }
 
     /**
@@ -128,12 +159,14 @@ var MultiAttack =
      */
     function handleInput(msg) {
       if (msg.type == "api" && msg.content.indexOf(modCmd) == 0) {
-        const params = msg.content.replace(/\s\s+/g, " ");
-        const [ command, param1, param2 ] = params.split(" ");
+        const message = msg.content.replace(/\s\s+/g, " ");
+        const [ command, ...params ] = message.split(" ");
         if (command == "!ma-macro") {
-          createMacro(param1, msg.playerid);
+          createMacro(params.join(" "), msg.playerid);
         } else {
-          multiAttack(param1, param2);
+          const charId = params.shift();
+          const chatMsg = multiAttack(charId, params.join(" "));
+          writeChat("/w gm " + chatMsg);
         }
       }
     }
@@ -164,6 +197,6 @@ on("ready", function () {
   MultiAttack.checkInstall();
   MultiAttack.registerEventHandlers();
 
-  log(`${MultiAttack.name} version ${MultiAttack.version} loaded`);
+  log(`${MultiAttack.name} version ${MultiAttack.version} running`);
 
 });

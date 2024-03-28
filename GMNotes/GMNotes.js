@@ -2,6 +2,8 @@
  * @name GMNotes
  * @author stephaned68
  * @version 1.0.1
+ * 
+ * @description Displays token's GM notes or linked character avatar in chat
  */
 
 var GMNotes =
@@ -150,5 +152,5 @@ var GMNotes =
 on("ready", function () {
   on("chat:message", GMNotes.handleInput);
 
-  log(`Mod:${GMNotes.name} version ${GMNotes.version} loaded`);
+  log(`Mod:${GMNotes.name} version ${GMNotes.version} running`);
 });

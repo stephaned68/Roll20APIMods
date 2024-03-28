@@ -45,6 +45,20 @@ Au premier lancement de la partie après installation du script, ce dernier cré
 
 # Notes de version
 
+## v2.0.0 (2024-03-03)
+
+Changement de la syntaxe pour les commandes d'attaque
+
+Le champ du type de dommages de l'action "Attaque multiples" doit être configuré comme une liste séparées par des virgules de commandes `nom*nombre`
+
+Où 
+- `nom` est un nom éventuellement partiel mais suffisamment unique pour que le script trouve l'action d'attaque correspondante
+- `nombre` est le nombre d'attaques de ce type que la créature effectue
+
+Ce nouveau format rend la configuration des blocs-stats plus simple
+
+Il permet également de résoudre les cas où les actions ont été déplacées dans la liste et que les indexs \_$n\_ dans la section répétable ne correspondent plus à la séquence d'affichage
+
 ## v1.0.0 (2023-11-18)
 
 - Version initiale

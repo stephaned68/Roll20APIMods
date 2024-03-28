@@ -316,5 +316,5 @@ on("ready", function () {
 
   SheetWorkerChat.registerEventHandlers();
 
-  log(`${SheetWorkerChat.name} version ${SheetWorkerChat.version} loaded`);
+  log(`${SheetWorkerChat.name} version ${SheetWorkerChat.version} running`);
 });
