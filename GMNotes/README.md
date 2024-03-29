@@ -8,9 +8,11 @@ v1.0.0
 
 # Utilisation
 
-<kbd>!gmnote</kbd> ou <kbd>!gmnotes</kbd> Murmure dans le chat les 'GM Notes' du jeton sélectionné
+<kbd>!gmnote</kbd> ou <kbd>!gmnotes</kbd> : Murmure dans le chat les 'GM Notes' du jeton sélectionné
 
-<kbd>!avatar</kbd> Affiche l'avatar du jeton sélectionné (recherche le premier lien vers un handout dans la bio du personnage lié au jeton et affiche l'avatar lié à ce handout, sinon affiche l'avatar du personnage lié au jeton) 
+<kbd>!avatar</kbd> : Affiche l'avatar du jeton sélectionné
+
+Si le token est lié à un personnage, la bio de ce dernier est examinée pour trouver un lien vers un handout, et l'avatar de ce handout est utilisé. Sinon c'est l'avatar du personnage lié au token qui est utilisé.
 
 # Notes de version
 

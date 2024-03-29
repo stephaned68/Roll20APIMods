@@ -31,12 +31,13 @@
 var SheetWorkerChat =
   SheetWorkerChat ||
   (function () {
-    const stateKey = "SheetWorkerChat";
-    const modName = `Mod:${stateKey}`;
-    const modVersion = "1.0.0";
-    const modCmd = "!sw-chat";
 
-    const gmOnly = "/w gm ";
+    const STATEKEY = "SheetWorkerChat";
+    const MOD_NAME = `Mod:${STATEKEY}`;
+    const MOD_VERSION = "1.0.0";
+    const MOD_COMMAND = "!sw-chat";
+
+    const GM_ONLY = "/w gm ";
 
     /**
      * Parse string and return integer value
@@ -74,12 +75,12 @@ var SheetWorkerChat =
      * @param {boolean} force
      */
     function writeLog(msg, force = true) {
-      if (state[stateKey].logging || force) {
+      if (state[STATEKEY].logging || force) {
         if (typeof msg !== "object") {
-          log(`${modName} | ${msg}`);
+          log(`${MOD_NAME} | ${msg}`);
         } else {
           for (const [prop, value] of Object.entries(msg)) {
-            log(`${modName} | ${prop} = ${value}`);
+            log(`${MOD_NAME} | ${prop} = ${value}`);
           }
         }
       }
@@ -91,7 +92,7 @@ var SheetWorkerChat =
      */
     function writeChat(message) {
       sendChat(
-        modName,
+        MOD_NAME,
         message,
         null, 
         { noarchive: true }
@@ -102,9 +103,9 @@ var SheetWorkerChat =
      * Display configuration options
      */
     function configDisplay() {
-      let helpMsg = gmOnly + `&{template:default} {{name=${modName} v${modVersion} Config}}`;
-      helpMsg += `{{Attribute name=${state[stateKey].attrName} [Change](${modCmd} config --attr ?{Attribute name})}}`;
-      helpMsg += `{{Logging=${state[stateKey].logging} [Toggle](${modCmd} config --logging) }}`;
+      let helpMsg = GM_ONLY + `&{template:default} {{name=${MOD_NAME} v${MOD_VERSION} Config}}`;
+      helpMsg += `{{Attribute name=${state[STATEKEY].attrName} [Change](${MOD_COMMAND} config --attr ?{Attribute name})}}`;
+      helpMsg += `{{Logging=${state[STATEKEY].logging} [Toggle](${MOD_COMMAND} config --logging) }}`;
       
       writeChat(helpMsg);
     }
@@ -121,10 +122,10 @@ var SheetWorkerChat =
 
       switch (args[0].toLowerCase()) {
         case "--attr":
-          state[stateKey].attrName = stringOrDefault(args[1]);
+          state[STATEKEY].attrName = stringOrDefault(args[1]);
           break;
         case "--logging":
-          state[stateKey].logging = !state[stateKey].logging;
+          state[STATEKEY].logging = !state[STATEKEY].logging;
           break;
       }
 
@@ -135,9 +136,9 @@ var SheetWorkerChat =
      * Display script help
      */
     function displayHelp() {
-      let helpMsg = gmOnly + `&{template:default} {{name=${modName} v${modVersion} Help }}`;
+      let helpMsg = GM_ONLY + `&{template:default} {{name=${MOD_NAME} v${MOD_VERSION} Help }}`;
       const helpText = [
-        { command: modCmd, description: "followed by..." },
+        { command: MOD_COMMAND, description: "followed by..." },
         {
           command: "config",
           description: "Configure attribute name and logging option",
@@ -161,7 +162,7 @@ var SheetWorkerChat =
         if ((args[args.length - 1] || "") === "}}") args.pop();
       }
 
-      if (msg.type !== "api" || cmd.indexOf(modCmd) === -1) return;
+      if (msg.type !== "api" || cmd.indexOf(MOD_COMMAND) === -1) return;
       
       const action = args[0] || "";
 
@@ -211,7 +212,7 @@ var SheetWorkerChat =
      */
     function outputChatMessage(attributeObj) {
       const attrName = attributeObj.get("name").toLowerCase();
-      if (attrName !== state[stateKey].attrName) return;
+      if (attrName !== state[STATEKEY].attrName) return;
 
       // get character id
       const characterId = attributeObj.get("_characterid");
@@ -262,11 +263,11 @@ var SheetWorkerChat =
     function migrateState() {
       // code here any changes to the state schema
 
-      state[stateKey].version = modVersion;
+      state[STATEKEY].version = MOD_VERSION;
     }
 
     const defaultState = {
-      version: modVersion,
+      version: MOD_VERSION,
       attrName: "chatmsg",
       logging: false,
     };
@@ -275,16 +276,16 @@ var SheetWorkerChat =
      * Check MOD installed
      */
     function checkInstall() {
-      if (!state[stateKey]) state[stateKey] = defaultState;
+      if (!state[STATEKEY]) state[STATEKEY] = defaultState;
 
-      writeChat(`Type '${modCmd} help' for help on commands`);
-      writeChat(`Type '${modCmd} config' to configure the MOD script`);
+      writeChat(`Type '${MOD_COMMAND} help' for help on commands`);
+      writeChat(`Type '${MOD_COMMAND} config' to configure the MOD script`);
 
-      if (state[stateKey].version !== modVersion) {
+      if (state[STATEKEY].version !== MOD_VERSION) {
         migrateState();
       }
 
-      writeLog(state[stateKey], true);
+      writeLog(state[STATEKEY], true);
     }
 
     function registerEventHandlers() {
@@ -300,8 +301,8 @@ var SheetWorkerChat =
     }
 
     return {
-      name: modName,
-      version: modVersion,
+      name: MOD_NAME,
+      version: MOD_VERSION,
       checkInstall,
       registerEventHandlers,
     };

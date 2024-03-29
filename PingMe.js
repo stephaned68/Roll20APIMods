@@ -13,7 +13,7 @@
 
 on('ready', function () {
 
-  const modCmd = "!pingme";
+  const MOD_COMMAND = "!pingme";
 
   /**
    * @returns {string} Id of current page
@@ -122,7 +122,7 @@ on('ready', function () {
    */
   const handleInput = function (msg) {
     const [ command, tokenId ] = msg.content.replace(/<br\/>/g, "").split(/\s+/);
-    if (msg.type === "api" && command === modCmd) {
+    if (msg.type === "api" && command === MOD_COMMAND) {
       const playerId = msg.playerid;
       pingMe(playerId, tokenId);
     }

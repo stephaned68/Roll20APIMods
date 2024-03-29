@@ -80,16 +80,21 @@ on('ready', () => {
     const hpBarValue = getParam("TokenBarValue", HP_BAR_VALUE);
     if (previous[hpBarValue] <= token.get(hpBarValue)) return;
 
-    let finalConcentrationDC = 10;
-    let computedConcentrationDC = (previous[HP_BAR_VALUE] - token.get(HP_BAR_VALUE)) / 2;
-    if (computedConcentrationDC > finalConcentrationDC) {
-      finalConcentrationDC = Math.floor(computedConcentrationDC);
+    let concentrationDC = 10;
+    let computedDC = (previous[HP_BAR_VALUE] - token.get(HP_BAR_VALUE)) / 2;
+    if (computedDC > concentrationDC) {
+      concentrationDC = Math.floor(computedDC);
     }
 
-    let tokenName = token.get("name");
+    const tokenName = token.get("name");
 
-    let outputMessage =
-      `/w gm &{template:npcaction} {{rname=Test de Concentration ${tokenName}}} {{name=${tokenName}}} {{description=[JS Constitution DD ${finalConcentrationDC}](~selected|constitution_save)&#10;[Perte Concentration](!token-mod --sel --set statusmarkers|!${CONCENTRATION_MARKER})}}`;
+    const outputMessage = [
+      "/w gm &{template:npcaction}",
+      `{{rname=Test de Concentration ${tokenName}}}`,
+      `{{name=${tokenName}}}`,
+      `{{description=[JS Constitution DD ${concentrationDC}](~selected|constitution_save)&#10;`,
+      `[Perte Concentration](!token-mod --sel --set statusmarkers|!${CONCENTRATION_MARKER}) }}`
+    ].join(" ");
     
     writeChat(outputMessage);
 
@@ -144,7 +149,12 @@ on('ready', () => {
         if (concentrating) {
           // const description = `${charName} is concentrating on *${spellName}* **${spellDuration}**`;
           const description = `${charName} se concentre sur *${spellName}* **${spellDuration}**`;
-          const outputMessage = `&{template:npcaction} {{rname=Concentration}} {{name=${charName} }} {{description=${description} }}`;
+          const outputMessage = [
+            `@{${charName}|wtype}&{template:npcaction}`,
+            "{{rname=Concentration}}",
+            `{{name=${charName}}}`,
+            `{{description= ${description}}}`
+          ].join(" ");
           writeChat(outputMessage);
         }
       }
@@ -155,9 +165,12 @@ on('ready', () => {
    * Display configuration menu
    */
   const displayConfig = function() {
-    let helpMsg = `/w gm &{template:default} {{name=${STATEKEY} v${MOD_VERSION} Config}}`;
-    helpMsg += `{{Token Marker=${getParam("TokenMarker", CONCENTRATION_MARKER)} [Change](!concentration marker|?{Marker Name}) }}`;
-    helpMsg += `{{HP Token Bar=${getParam("TokenBar", HP_BAR_VALUE)} [Change](!concentration bar|?{Token Bar}) }}`;
+    const helpMsg = [
+      "/w gm &{template:default}",
+      `{{name=${STATEKEY} v${MOD_VERSION} | Configuration}}`,
+      `{{Token Marker=${getParam("TokenMarker", CONCENTRATION_MARKER)} [Change](!concentration marker|?{Marker Name}) }}`,
+      `{{HP Token Bar=${getParam("TokenBar", HP_BAR_VALUE)} [Change](!concentration bar|?{Token Bar}) }}`
+    ].join(" ");
     writeChat(helpMsg);
   }
 

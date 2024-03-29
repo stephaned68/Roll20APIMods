@@ -13,8 +13,9 @@ Script MOD Token-Mod
 Token markers : https://drive.google.com/drive/folders/1p8PTqBHkgSrKVqqOyI2_kFcPmbgLcX72
 
 # Mise en place
-- Vous devez télécharger le jeu de token markers indiqué ci-dessus et l'ajouter à la partie dans Roll20
-- Vous devez créer pour chaque condition un handout nommé <kbd>Condition:{nom}</kbd> contenant le texte descriptif qui sera affiché dans le chat 
+- Vous devez installer le script MOD Token-Mod
+- Vous devez télécharger le jeu de token markers indiqué ci-dessus et l'ajouter à la partie
+- Vous devez créer pour chaque condition un handout nommé <kbd>Condition:{nom}</kbd> qui contient le texte descriptif à afficher dans le chat
 
 ## Liste des noms de conditions
 - Grappled (agrippé)
@@ -34,13 +35,13 @@ Token markers : https://drive.google.com/drive/folders/1p8PTqBHkgSrKVqqOyI2_kFcP
 
 # Utilisation
 
-<kbd>!condition {nom}</kbd> Affiche dans le chat la condition nommée
+<kbd>!condition {nom}</kbd> Affiche dans le chat la description de la condition nommée
 
 <kbd>!conditions</kbd> Crée la macro MOD-Conditions
 
-La macro MOD-Conditions permet de choisir une condition à appliquer au token sélectionné sous la forme d'un token marker
+La macro MOD-Conditions permet de choisir une condition à appliquer au token sélectionné
 - Token-Mod permet d'appliquer le token marker correspondant à la condition
-- La description de la condition est affichée dans un message de chat non archivé
+- La description trouvée dans le handout nommé Condition:{nom} est affichée dans un message de chat non archivé
 
 # Notes de version
 

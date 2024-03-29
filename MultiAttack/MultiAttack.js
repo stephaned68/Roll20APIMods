@@ -25,10 +25,10 @@ var MultiAttack =
   MultiAttack ||
   (function () {
 
-    const modName = `Mod:MultiAttack`;
-    const modVersion = "2.0.0";
-    const modCmd = "!ma";
-    const modHelpHandout = "Mod-MultiAttack-Help";
+    const MOD_NAME = `Mod:MultiAttack`;
+    const MOD_VERSION = "2.0.0";
+    const MOD_COMMAND = "!ma";
+    const MOD_HELP_HANDOUT = "Mod-MultiAttack-Help";
 
     /**
      * Send a non archived message to chat
@@ -36,7 +36,7 @@ var MultiAttack =
      */
     function writeChat(message) {
       sendChat(
-        modName,
+        MOD_NAME,
         message,
         null, 
         { noarchive: true }
@@ -47,15 +47,15 @@ var MultiAttack =
     function checkInstall() {
       let helpHandout = findObjs({
         _type:	"handout",
-        name: modHelpHandout
+        name: MOD_HELP_HANDOUT
       });
       if (helpHandout.length > 0) return;
       helpHandout = createObj("handout", {
-        name: modHelpHandout,
+        name: MOD_HELP_HANDOUT,
       });
       if (helpHandout) {
         helpHandout.set("notes", `
-        <h1>MultiAttack MOD script v${modVersion}</h1>
+        <h1>MultiAttack MOD script v${MOD_VERSION}</h1>
         <p>by stephaned68</p>
         <hr>
         <h2>Setting up macro</h2>
@@ -158,7 +158,7 @@ var MultiAttack =
      * @param {object} msg Roll20 chat message object
      */
     function handleInput(msg) {
-      if (msg.type == "api" && msg.content.indexOf(modCmd) == 0) {
+      if (msg.type == "api" && msg.content.indexOf(MOD_COMMAND) == 0) {
         const message = msg.content.replace(/\s\s+/g, " ");
         const [ command, ...params ] = message.split(" ");
         if (command == "!ma-macro") {
@@ -182,8 +182,8 @@ var MultiAttack =
     }
 
     return {
-      name: modName,
-      version: modVersion,
+      name: MOD_NAME,
+      version: MOD_VERSION,
       checkInstall,
       registerEventHandlers,
     };

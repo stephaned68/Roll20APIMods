@@ -9,9 +9,10 @@
 var TableRoller =
   TableRoller ||
   (function () {
-    const modName = "TableRoller";
-    const modVersion = "1.0.0";
-    const modCommand = "!tbr";
+    
+    const MOD_NAME = "TableRoller";
+    const MOD_VERSION = "1.0.0";
+    const MOD_COMMAND = "!tbr";
 
     /**
      * Return player's color
@@ -125,7 +126,7 @@ var TableRoller =
 
       const [ command, rollTable, ...args ] = msg.content.split(" ");
       
-      if (command !== modCommand) return;
+      if (command !== MOD_COMMAND) return;
       if (!rollTable) {
         log("Missing rollable table name");
         return;
@@ -144,7 +145,7 @@ var TableRoller =
       }</div>`; 
 
       sendChat(
-        `MOD:${modName}`,
+        `MOD:${MOD_NAME}`,
         htmlTemplate,
         null,
         { noarchive: true }
@@ -152,8 +153,8 @@ var TableRoller =
     };
 
     return {
-      name: modName,
-      version: modVersion,
+      name: MOD_NAME,
+      version: MOD_VERSION,
       pickItem,
       handleInput,
     };

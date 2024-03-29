@@ -12,9 +12,9 @@ La syntaxe de base de ce MOD est la suivante
 
 <kbd>!ma _characterid_ _nom*nombre,...,nom*nombre_</kbd>
 
-Où <kbd>_characterid_</kbd> est l'id du personnage
+Où <kbd>characterid</kbd> est l'id du personnage
 
-Et <kbd>_nom*nombre,...,nom*nombre_</kbd> est la liste des actions d'attaque à envoyer dans le chat
+Et <kbd>nom*nombre,...,nom*nombre</kbd> est la liste des actions d'attaque à envoyer dans le chat
 
 En utilisant le champ du type de dégâts de la capacité _**Attaques multiples**_ de la fiche de PNJ pour lister les actions d'attaque, on peut utiliser la syntaxe suivante et l'enregistrer dans une macro :
 

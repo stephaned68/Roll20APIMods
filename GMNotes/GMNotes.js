@@ -13,9 +13,9 @@ var GMNotes =
     /**
      * Constants
      */
-    const modName = "GMNotes";
-    const modVersion = "1.0.1";
-    const modCommand = [ "!gmnote", "!gmnotes", "!avatar" ];
+    const MOD_NAME = "GMNotes";
+    const MOD_VERSION = "1.0.1";
+    const MOD_COMMAND = [ "!gmnote", "!gmnotes", "!avatar" ];
 
     /**
      * Send a non archived message to chat
@@ -23,7 +23,7 @@ var GMNotes =
      */
     const writeChat = function (message) {
       sendChat(
-        `MOD:${modName}`,
+        `MOD:${MOD_NAME}`,
         message,
         null, 
         { noarchive: true }
@@ -119,7 +119,7 @@ var GMNotes =
       if (msg.type !== "api") return;
 
       const [ command ] = msg.content.split(" ");
-      if (!command || !modCommand.includes(command)) return;
+      if (!command || !MOD_COMMAND.includes(command)) return;
 
       const [ selected ] = msg.selected;
 
@@ -140,8 +140,8 @@ var GMNotes =
     };
 
     return {
-      name: modName,
-      version: modVersion,
+      name: MOD_NAME,
+      version: MOD_VERSION,
       handleInput,
     };
   })();

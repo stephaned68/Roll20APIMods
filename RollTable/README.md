@@ -16,7 +16,7 @@ La syntaxe de base de ce MOD est la suivante
 
 Le premier paramètre après la commande !tbr est le nom de la table sur laquelle le jet doit être effectué.
 
-Tout ce qui se trouve à la suite du nom de la table est considéré comme le texte à afficher dans la barre de titre du résultat affiché dans le chat (habituellement la nature du lancer).
+Tout ce qui se trouve à la suite du nom de la table est considéré comme le contenu de la barre de titre du résultat affiché dans le chat (en principe la nature du lancer).
 
 # Notes de version
 
