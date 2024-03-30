@@ -8,12 +8,12 @@ v1.0.0
 
 ## Dépendances
 
-Script MOD Token-Mod
+Script MOD TokenMod
 
 Token markers : https://drive.google.com/drive/folders/1p8PTqBHkgSrKVqqOyI2_kFcPmbgLcX72
 
 # Mise en place
-- Vous devez installer le script MOD Token-Mod
+- Vous devez installer le script MOD TokenMod
 - Vous devez télécharger le jeu de token markers indiqué ci-dessus et l'ajouter à la partie
 
 # Utilisation
@@ -26,7 +26,7 @@ Ce marker est ajouté automatiquement si vous envoyez ou murmurez la description
 
 Une fois le marker placé sur le token, dès que le script détecte que votre personnage a perdi des points de vie, il affiche dans le chat un menu avec deux boutons :
 - Un bouton qui permet de faire un jet de Concentration, le DD du jet est calculé selon les dégâts reçus et indiqué sur le texte du bouton.
-- Un bouton qui permet de retirer le token marker **Concentration** si le jet a échoué. Le script MOD **Token-Mod** doit être installé pour ce faire.
+- Un bouton qui permet de retirer le token marker **Concentration** si le jet a échoué. Le script MOD **TokenMod** doit être installé pour ce faire.
 
 # Configuration
 

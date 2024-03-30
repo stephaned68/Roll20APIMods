@@ -8,12 +8,12 @@ v1.0.0
 
 ## Dépendances
 
-Script MOD Token-Mod
+Script MOD TokenMod
 
 Token markers : https://drive.google.com/drive/folders/1p8PTqBHkgSrKVqqOyI2_kFcPmbgLcX72
 
 # Mise en place
-- Vous devez installer le script MOD Token-Mod
+- Vous devez installer le script MOD TokenMod
 - Vous devez télécharger le jeu de token markers indiqué ci-dessus et l'ajouter à la partie
 - Vous devez créer pour chaque condition un handout nommé <kbd>Condition:{nom}</kbd> qui contient le texte descriptif à afficher dans le chat
 
@@ -40,7 +40,7 @@ Token markers : https://drive.google.com/drive/folders/1p8PTqBHkgSrKVqqOyI2_kFcP
 <kbd>!conditions</kbd> Crée la macro MOD-Conditions
 
 La macro MOD-Conditions permet de choisir une condition à appliquer au token sélectionné
-- Token-Mod permet d'appliquer le token marker correspondant à la condition
+- TokenMod permet d'appliquer le token marker correspondant à la condition
 - La description trouvée dans le handout nommé Condition:{nom} est affichée dans un message de chat non archivé
 
 # Notes de version
