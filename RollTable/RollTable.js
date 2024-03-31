@@ -84,13 +84,13 @@ var TableRoller =
      * @returns {string} result of the roll
      */
     const pickItem = function (tableName) {
-      const rollableTable = findObjs(
+      const [ rollableTable ] = findObjs(
         {
           _type: "rollabletable",
           name: tableName,
         },
         { caseInsensitive: true }
-      )[0];
+      );
       if (!rollableTable) {
         log(`Rollable table ${tableName} not found`);
         return "";
@@ -132,21 +132,41 @@ var TableRoller =
         return;
       }
 
+      const togm = args.indexOf("--whisper");
+      if (togm !== -1) {
+        args.splice(togm, 1);
+      }
+
       const colors = playerColors(msg.playerid);
       const title = args.join(" ") || rollTable;
 
       const result = pickItem(rollTable);
       if (!result) return;
 
-      const htmlTemplate = `<div style="width: calc(100% - 10px); border: 1px solid #333; border-radius: 5px; background: white; box-shadow: 5px 5px 5px #333;">${
-        `<span style="display: inline-block; width: 100%; border-radius: 5px 5px 0 0; text-align: center; background-color: ${ colors.background }; color:${ colors.text };">${title}</span>`
+      const frameStyle = [
+        "width: calc(100% - 10px)",
+        "border: 1px solid #333",
+        "border-radius: 5px",
+        "background: white",
+        "box-shadow: 5px 5px 5px #333"
+      ].join("; ");
+      const titleSyle = [
+        "display: inline-block",
+        "width: 100%",
+        "border-radius: 5px 5px 0 0",
+        "text-align: center",
+        `background-color: ${ colors.background }`,
+        `color: ${ colors.text }`
+      ].join("; ");
+      const htmlTemplate = `<div style="${frameStyle}">${
+        `<span style="${titleSyle}">${title}</span>`
       }${
         `<div style="padding: 5px;">${result}</div>`
       }</div>`; 
 
       sendChat(
         `MOD:${MOD_NAME}`,
-        htmlTemplate,
+        togm === -1 ? "" : "/w gm " + htmlTemplate,
         null,
         { noarchive: true }
       );
@@ -160,6 +180,9 @@ var TableRoller =
     };
   })();
 
+/**
+ * Register chat message event handler
+ */
 on("ready", function () {
   on("chat:message", TableRoller.handleInput);
 

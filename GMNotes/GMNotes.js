@@ -105,26 +105,34 @@ var GMNotes =
       gmNotes = decodeUnicode(gmNotes);
       gmNotes = unescape(gmNotes);
 
+      const style = [
+        "width: calc(100% - 10px)",
+        "padding: 5px",
+        "border: 1px solid #333",
+        "border-radius: 5px",
+        "background: white",
+        "box-shadow: 5px 5px 5px #333"
+      ].join("; ");
       writeChat(
-        `/w gm <div style="width: calc(100% - 10px); padding: 5px; border: 1px solid #333; border-radius: 5px; background: white; box-shadow: 5px 5px 5px #333;">${gmNotes}</div>`
+        `/w gm <div style="${style}">${gmNotes}</div>`
       );      
     }
 
     /**
      * Handle API message input in chat
-     * @param {object} msg message object
+     * @param {object} chatMsg message object
      * @returns {void}
      */
-    const handleInput = function (msg) {
-      if (msg.type !== "api") return;
+    const handleInput = function (chatMsg) {
+      if (chatMsg.type !== "api") return;
 
-      const [ command ] = msg.content.split(" ");
+      const [ command ] = chatMsg.content.split(" ");
       if (!command || !MOD_COMMAND.includes(command)) return;
 
-      const [ selected ] = msg.selected;
+      const [ selected ] = chatMsg.selected;
 
       if (!selected) {
-        writeChat("Sélectionnez d'abord un token");
+        writeChat("/w gm Sélectionnez d'abord un token");
         return;
       }
 
