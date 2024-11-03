@@ -1,7 +1,7 @@
 /**
  * @name Conditions
  * @author stephaned68
- * @version 1.0.0
+ * @version 1.1.0
  * 
  * @description Set condition marker on token and display description in chat
  * 
@@ -14,7 +14,7 @@
  */
 on('ready', () => {
 
-  const MOD_VERSION = "1.0.0";
+  const MOD_VERSION = "1.1.0";
 
   const MOD_NAME = "MOD:Conditions"
 
@@ -37,15 +37,17 @@ on('ready', () => {
     "Aveuglé,Blinded",
     "Charmé,Charmed",
     "Effrayé,Frightened",
-    "Epuisé,Exhausted",
     "Empoisonné,Poisoned",
     "Entravé,Restrained",
+    "Epuisé,Exhausted",
     "Etourdi,Stunned",
     "Incapacité,Incapacited",
     "Invisible,Invisible",
     "Paralysé,Paralysed",
     "Pétrifié,Petrified"
   ].join("|")+"}";
+
+  const MARKER_BLOODIED = "Bleeding";
 
   const MACRO_ACTION = [
     `!token-mod --set statusmarkers|${CONDITION_QUERY}`,
@@ -117,6 +119,33 @@ on('ready', () => {
    */
   on(`change:token:statusmarkers`, function (t, p) {
     conditionAdded(t, p);
+  });
+
+  /**
+   * Wire-up change of HP value event (bloodied message)
+   */
+  on('change:attribute', function (attribute) {
+    if (attribute._type !== "attribute" && attribute.get("name") !== "hp") return;
+
+    const currentHP = parseInt(attribute.get("current")) || 0;
+    const maxHP = parseInt(attribute.get("max")) || 0;
+    if (maxHP === 0 || currentHP === 0) return;
+
+    if (currentHP <= Math.floor(maxHP / 2)) {
+      const charId = attribute.get("_characterid");
+      if (!charId) return;
+      const [ character ] = findObjs({ 
+        _type: "character", 
+        _id: charId
+      });
+      if (!character) return;
+      sendChat(
+        MOD_NAME,
+        `<div style="${DIV_STYLE};">${character.get("name")} est <strong>en sang</strong></div>`,
+        null,
+        { noarchive: true }
+      );
+    }
   });
 
   /**

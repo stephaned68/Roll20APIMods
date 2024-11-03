@@ -22,6 +22,7 @@ Token markers : https://drive.google.com/drive/folders/1p8PTqBHkgSrKVqqOyI2_kFcP
 - Deafened (assourdi)
 - Prone (au sol)
 - Blinded (aveuglé)
+- Bloodied (en sang)
 - Charmed (charmé)
 - Frightened (effrayé)
 - Exhausted (épuisé)
@@ -44,6 +45,10 @@ La macro MOD-Conditions permet de choisir une condition à appliquer au token s�
 - La description trouvée dans le handout nommé Condition:{nom} est affichée dans un message de chat non archivé
 
 # Notes de version
+
+## v1.1.0 (2024-11-03)
+
+- Ajout condition _Bloodied_ (en sang - D&D 5e24)
 
 ## v1.0.0 (2024-03-28)
 
