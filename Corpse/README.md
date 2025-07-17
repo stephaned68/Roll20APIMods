@@ -13,7 +13,7 @@ v1.0.0
 Les paramètres suivants peuvent être changés :
 - No de la barre de santé (par défaut : <kbd>1</kbd>)
 - Token Marker à appliquer quand la valeur de la barre de santé tombe à 0 ou moins (par défaut : <kbd>dead</kbd>)
-- Envoi du token vers la couche de la carte : Oui (par défaut) / Non.
+- Envoi du token vers la couche de la carte : Oui (par défaut) / Non. Cette action ne se produit que pour les mooks (PNJ dont la barre de vie n'est liée à aucun attribut).
 
 # Notes de version
 

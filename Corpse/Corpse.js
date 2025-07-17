@@ -22,6 +22,15 @@ on('ready', () => {
   const CHAT_COMMAND = "!corpse";
 
   /**
+   * Localisation here...
+   */
+  const LANG = {
+    HealthBar: "Barre de santé",
+    TokenMarker: "Nom du marker",
+    BuryToken: "Enterrer le jeton",
+  }
+
+  /**
    * Get a state parameter value
    * @param {string} name - Parameter name
    * @param {any} defaultValue - Default parameter value
@@ -76,15 +85,15 @@ on('ready', () => {
     const helpMsg = [
       "/w gm &{template:default}",
       `{{name=${STATEKEY} v${MOD_VERSION} | Configuration}}`,
-      `{{Health Bar=${ getParam("TokenBar", DEF_HEALTH_BAR_VALUE) } [Change](${CHAT_COMMAND} bar|?{Health Bar}) }}`,
-      `{{Token Marker=${ getParam("TokenMarker", DEF_TOKEN_MARKER) } [Change](${CHAT_COMMAND} marker|?{Marker Name}) }}`,
-      `{{Bury Token=${ (getParam("TokenBury", DEF_TOKEN_BURY) === 1) ? "*On* [Off]" : "*Off* [On]" }(${CHAT_COMMAND} bury) }}`,
+      `{{${LANG.HealthBar}=${ getParam("TokenBar", DEF_HEALTH_BAR_VALUE) } [Change](${CHAT_COMMAND} bar|?{${LANG.HealthBar}}) }}`,
+      `{{${LANG.TokenMarker}=${ getParam("TokenMarker", DEF_TOKEN_MARKER) } [Change](${CHAT_COMMAND} marker|?{${LANG.TokenMarker}}) }}`,
+      `{{${LANG.BuryToken}=${ (getParam("TokenBury", DEF_TOKEN_BURY) === 1) ? "*On* [Off]" : "*Off* [On]" }(${CHAT_COMMAND} bury) }}`,
     ].join(" ");
     writeChat(helpMsg);
   }
 
   /**
-   * Handle !concentration configuration menu
+   * Handle !corpse configuration menu
    * @param {object} chatMsg - Roll20 chat message object
    * @returns {void}
    */
@@ -115,17 +124,24 @@ on('ready', () => {
     displayConfig();
   }
 
+  /**
+   * Process a 'dead' token
+   * @param {string} bar - name of token bar value
+   * @param {object} token - Roll20 token object
+   * @returns {void}
+   */
   const processToken = function (bar, token) {
     const healthBar = getParam("TokenBar", DEF_HEALTH_BAR_VALUE);
     if (healthBar !== bar)
       return;
+    const linkedTo = token.get(bar.replace("_value", "_link")) || "";
     const health = parseInt(token.get(healthBar)) || 0;
     if (health > 0)
       return;
     const deadMarker = getParam("TokenMarker", DEF_TOKEN_MARKER);
     let logMsg = token.get("name") + " is dead"
     token.set({ "statusmarkers": deadMarker, [healthBar]: 0 });
-    if (getParam("TokenBury", DEF_TOKEN_BURY) === 1) {
+    if (getParam("TokenBury", DEF_TOKEN_BURY) === 1 && linkedTo === "") {
       token.set({ layer: "map", tint_color: "000000" });
       logMsg += " & buried";
     }
@@ -155,6 +171,9 @@ on('ready', () => {
     }
   });
 
+  /**
+   * Display initialization message in sandbox log
+   */
   const config = [
     { name: "TokenMarker", default: DEF_TOKEN_MARKER },
     { name: "TokenBar", default: DEF_HEALTH_BAR_VALUE },
@@ -163,7 +182,6 @@ on('ready', () => {
     configAll += " | " + config.name + "=" + getParam(config.name, config.default);
     return configAll;
   }, "");
-  
   writeLog(`version ${MOD_VERSION} running${config}`);
 
 });
