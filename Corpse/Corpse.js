@@ -1,7 +1,7 @@
 /**
  * @name Corpse
  * @author stephaned68
- * @version 1.0.0
+ * @version 1.1.0
  * 
  * @description Handle dead tokens
  */
@@ -17,7 +17,10 @@ on('ready', () => {
 
   const DEF_TOKEN_MARKER = "dead";
   const DEF_HEALTH_BAR_VALUE = "bar1_value";
+  const DEF_TOKEN_TINT = 1;
   const DEF_TOKEN_BURY = 1;
+
+  const HALF_HEALTH_TINT = "ED2939";
 
   const CHAT_COMMAND = "!corpse";
 
@@ -27,6 +30,7 @@ on('ready', () => {
   const LANG = {
     HealthBar: "Barre de santé",
     TokenMarker: "Nom du marker",
+    TokenTint: "Changer la teinte",
     BuryToken: "Enterrer le jeton",
   }
 
@@ -87,6 +91,7 @@ on('ready', () => {
       `{{name=${STATEKEY} v${MOD_VERSION} | Configuration}}`,
       `{{${LANG.HealthBar}=${ getParam("TokenBar", DEF_HEALTH_BAR_VALUE) } [Change](${CHAT_COMMAND} bar|?{${LANG.HealthBar}}) }}`,
       `{{${LANG.TokenMarker}=${ getParam("TokenMarker", DEF_TOKEN_MARKER) } [Change](${CHAT_COMMAND} marker|?{${LANG.TokenMarker}}) }}`,
+      `{{${LANG.TokenTint}=${ (getParam("TokenTint", DEF_TOKEN_TINT) === 1) ? "*On* [Off]" : "*Off* [On]" }(${CHAT_COMMAND} tint) }}`,
       `{{${LANG.BuryToken}=${ (getParam("TokenBury", DEF_TOKEN_BURY) === 1) ? "*On* [Off]" : "*Off* [On]" }(${CHAT_COMMAND} bury) }}`,
     ].join(" ");
     writeChat(helpMsg);
@@ -113,6 +118,10 @@ on('ready', () => {
           setParam("TokenBar", `bar${value}_value`);
         }
         break;
+      case "tint":
+        const tint = 1 - getParam("TokenTint", DEF_TOKEN_TINT);
+        setParam("TokenTint", tint);
+        break;
       case "bury":
         const bury = 1 - getParam("TokenBury", DEF_TOKEN_BURY);
         setParam("TokenBury", bury);
@@ -136,8 +145,12 @@ on('ready', () => {
       return;
     const linkedTo = token.get(bar.replace("_value", "_link")) || "";
     const health = parseInt(token.get(healthBar)) || 0;
-    if (health > 0)
+    if (health > 0) {
+      const maxHealth = parseInt(token.get(bar.replace("_value", "_max"))) || 0;
+      const tint_color = health <= Math.floor(maxHealth/2) ? HALF_HEALTH_TINT : "transparent";
+      token.set({ tint_color });
       return;
+    }
     const deadMarker = getParam("TokenMarker", DEF_TOKEN_MARKER);
     let logMsg = token.get("name") + " is dead"
     token.set({ "statusmarkers": deadMarker, [healthBar]: 0 });
@@ -177,6 +190,7 @@ on('ready', () => {
   const config = [
     { name: "TokenMarker", default: DEF_TOKEN_MARKER },
     { name: "TokenBar", default: DEF_HEALTH_BAR_VALUE },
+    { name: "TokenTint", default: DEF_TOKEN_TINT },
     { name: "TokenBury", default: DEF_TOKEN_BURY }
   ].reduce((configAll, config) => {
     configAll += " | " + config.name + "=" + getParam(config.name, config.default);
