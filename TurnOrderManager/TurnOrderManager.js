@@ -184,7 +184,7 @@ var TurnOrderManager =
     };
 
     // !to-clean
-    const handleClean = (msg) => {
+    const handleClean = () => {
       let turns = getTurns();
       turns = _.filter(turns, (t) => t.pr <= 0);
       setTurns(turns);
