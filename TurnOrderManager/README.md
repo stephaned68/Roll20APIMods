@@ -1,4 +1,4 @@
-# TurnOrderManager
+# TurnOrderManager version 1.1.0
 
 Ce script permet de simplifier la gestion du Turn Order à l'aide de commande de chat.
 
@@ -11,6 +11,8 @@ Trie le Turn Order par ordre décroissant et ajoute un compteur de round au déb
 ### `!to-clear` (GM Only)
 
 Efface le contenu du Turn Order, **sans message de confirmation**. Un message est murmuré au MJ dans le chat avec la commande à utiliser pour restaurer le contenu effacé, en cas d'erreur.
+
+Si l'option `--close` est spécifiée, la fenêtre du Turn Order est refermée.
 
 ### `!to-down <n> [--<before|after> prefix] name`
 

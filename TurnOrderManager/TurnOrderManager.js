@@ -1,7 +1,7 @@
 /**
  * @name TurnOrderManager
  * @author stephaned68
- * @version 1.0.0
+ * @version 1.1.0
  *
  * Script to simplify Turn Order Management, and move it into chat.
  * Commands:
@@ -12,6 +12,7 @@
  *
  * !to-clear
  * Clear the turn order. NOTE: THERE IS NO CONFIRMATION.
+ * Add --close to close the Turn Order window
  *
  * !to-down <n> [--<before|after> prefix] name
  * Add an item to the list that counts down from n. By default this is added
@@ -35,7 +36,7 @@ var TurnOrderManager =
     "use strict";
 
     const scriptName = "TurnOrderManager";
-    const scriptVersion = "1.0.0";
+    const scriptVersion = "1.1.0";
 
     const COUNTER = {
       name: "ROUND",
@@ -152,10 +153,14 @@ var TurnOrderManager =
         whisperToId(playerId, "Only the GM can clear turn data.");
         return;
       }
+      const param = msg.replace(/<br\/>/g, "").split(/\s+/)[1] || "";
       const turns = Campaign().get("turnorder");
       setTurns([]);
       log(`${scriptName}: CLEARING: ${turns}`);
-      whisperToId("GM", `Turns cleared. To restore, run <code>!to-load ${turns}</code>`);
+      if (turns !== "[]")
+        whisperToId("GM", `Turns cleared. To restore, run <code>!to-load ${turns}</code>`);
+      if (param.trim().toLowerCase() === "--close")
+        Campaign().set("initiativepage", false);
     };
 
     // !to-load
@@ -270,7 +275,7 @@ var TurnOrderManager =
         return;
       }
       log(`${scriptName}: unknown cmd: ${cmd}`);
-      whisperToId(playerId, `Unknown command: ${cmd}`);
+      whisperToId(msg.playerid, `Unknown command: ${cmd}`);
     };
 
     // Register chat message handler
