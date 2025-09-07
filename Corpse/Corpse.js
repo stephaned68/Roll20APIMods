@@ -1,13 +1,13 @@
 /**
  * @name Corpse
  * @author stephaned68
- * @version 1.1.0
+ * @version 1.2.0
  * 
  * @description Handle dead tokens
  */
 on('ready', () => {
 
-  const MOD_VERSION = "1.0.0";
+  const MOD_VERSION = "1.2.0";
   
   const STATEKEY = "Corpse";
 
@@ -98,6 +98,15 @@ on('ready', () => {
   }
 
   /**
+   * Bury a token
+   * @param {object} token - Roll20 token object
+   * @returns {void}
+   */
+  const bury = function(token) {
+    token.set({ layer: "map", tint_color: "000000" });
+  }
+
+  /**
    * Handle !corpse configuration menu
    * @param {object} chatMsg - Roll20 chat message object
    * @returns {void}
@@ -108,6 +117,7 @@ on('ready', () => {
       displayConfig();
       return;
     }
+    let changed = true;
     const [ name, value ] = param.split("|");
     switch (name) {
       case "marker":
@@ -123,14 +133,25 @@ on('ready', () => {
         setParam("TokenTint", tint);
         break;
       case "bury":
-        const bury = 1 - getParam("TokenBury", DEF_TOKEN_BURY);
-        setParam("TokenBury", bury);
+        if (value === "--sel") {
+          selected = chatMsg.selected || [];
+          selected.forEach(tsel => {
+            const [ token ] = findObjs(tsel);
+            if (token && token.get("_subtype") === "token")
+              bury(token);
+          });
+          changed = false;
+        } else {
+          const bury = 1 - getParam("TokenBury", DEF_TOKEN_BURY);
+          setParam("TokenBury", bury);
+        }
         break;
       case "reset":
         state[STATEKEY] = {};
         break;
     }
-    displayConfig();
+    if (changed)
+      displayConfig();
   }
 
   /**
@@ -152,10 +173,10 @@ on('ready', () => {
       return;
     }
     const deadMarker = getParam("TokenMarker", DEF_TOKEN_MARKER);
-    let logMsg = token.get("name") + " is dead"
+    let logMsg = token.get("name") + " is dead";
     token.set({ "statusmarkers": deadMarker, [healthBar]: 0 });
     if (getParam("TokenBury", DEF_TOKEN_BURY) === 1 && linkedTo === "") {
-      token.set({ layer: "map", tint_color: "000000" });
+      bury(token);
       logMsg += " & buried";
     }
     writeLog(logMsg);

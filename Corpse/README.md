@@ -6,7 +6,7 @@ Un script MOD pour Roll20 permettant de détecter la valeur de la barre de vie /
 
 ## Version courante
 
-v1.1.0
+v1.2.0
 
 # Utilisation
 
@@ -19,6 +19,14 @@ Les paramètres suivants peuvent être changés :
 - Envoi du token vers la couche de la carte : Oui (par défaut) / Non. Cette action ne se produit que pour les mooks (PNJ dont la barre de vie n'est liée à aucun attribut).
 
 # Notes de version
+
+## v1.2.0 (2025-09-07)
+
+- <kbd>!corpse bury|--sel</kbd> : Force l'envoi du ou des tokens sélectionnés vers la couche de la carte.
+
+## v1.1.0 (2025-07-29)
+
+- Ajout d'une teinte rouge au token quand la barre de vie est inférieure ou égale à la moitié du maximum.
 
 ## v1.0.0 (2025-07-16)
 
