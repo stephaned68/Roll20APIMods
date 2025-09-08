@@ -31,7 +31,7 @@ on('ready', () => {
     HealthBar: "Barre de santé",
     TokenMarker: "Nom du marker",
     TokenTint: "Changer la teinte",
-    BuryToken: "Enterrer le jeton",
+    BuryToken: "Enfouir le jeton",
   }
 
   /**
@@ -107,6 +107,37 @@ on('ready', () => {
   }
 
   /**
+   * Bury selected tokens
+   * @param {object} chatMsg - Roll20 chat message object
+   * @returns {void}
+   */
+  const burySelected = function(chatMsg) {
+    selected = chatMsg.selected || [];
+    if (selected.length === 0)
+      return;
+    selected.forEach(tksel => {
+      const [ token ] = findObjs(tksel);
+      if (token && token.get("_subtype") === "token")
+        bury(token);
+    });
+  }
+
+  /**
+   * Bury tokens that have the dead marker set
+   */
+  const buryDead = function() {
+    const deadStatus = `status_${ getParam("TokenMarker", DEF_TOKEN_MARKER) }`;
+    const deadTokens = findObjs({
+      _type: "graphic",
+			_subtype: "token",
+			[deadStatus]: true,
+			layer: "objects",
+      _pageid: Campaign().get("playerpageid"),
+    });
+    deadTokens.forEach(token => bury(token));
+  }
+
+  /**
    * Handle !corpse configuration menu
    * @param {object} chatMsg - Roll20 chat message object
    * @returns {void}
@@ -134,12 +165,10 @@ on('ready', () => {
         break;
       case "bury":
         if (value === "--sel") {
-          selected = chatMsg.selected || [];
-          selected.forEach(tsel => {
-            const [ token ] = findObjs(tsel);
-            if (token && token.get("_subtype") === "token")
-              bury(token);
-          });
+          burySelected(chatMsg);
+          changed = false;
+        } else if (value === "--dead") {
+          buryDead();
           changed = false;
         } else {
           const bury = 1 - getParam("TokenBury", DEF_TOKEN_BURY);
