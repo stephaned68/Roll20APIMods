@@ -153,13 +153,13 @@ var TurnOrderManager =
         whisperToId(playerId, "Only the GM can clear turn data.");
         return;
       }
-      const param = msg.replace(/<br\/>/g, "").split(/\s+/)[1] || "";
+      const param = msg.replace(/<br\/>/g, "").split(/\s+/).splice(1) || [];
       const turns = Campaign().get("turnorder");
       setTurns([]);
       log(`${scriptName}: CLEARING: ${turns}`);
-      if (turns !== "[]")
+      if (turns !== "[]" && !param.includes("--no-load"))
         whisperToId("GM", `Turns cleared. To restore, run <code>!to-load ${turns}</code>`);
-      if (param.trim().toLowerCase() === "--close")
+      if (param.includes("--close"))
         Campaign().set("initiativepage", false);
     };
 
