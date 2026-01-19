@@ -1,32 +1,32 @@
 /**
  * @name TurnOrderManager
  * @author stephaned68
- * @version 1.1.0
+ * @version 1.2.0
  *
  * Script to simplify Turn Order Management, and move it into chat.
  * Commands:
  *
- * !to-begin / !to-start
+ * !tom-begin / !tom-start
  * Sort the Turn Counter numerically descending, and add a turn counter to the
  * top of the order
  *
- * !to-clear
+ * !tom-clear
  * Clear the turn order. NOTE: THERE IS NO CONFIRMATION.
  * Add --close to close the Turn Order window
  *
- * !to-down <n> [--<before|after> prefix] name
+ * !tom-down <n> [--<before|after> prefix] name
  * Add an item to the list that counts down from n. By default this is added
  * to the current end of the order. If --before or --after is provided, the
  * argument is used as a prefix search for a name to put the item before or
  * after.
  *
- * !to-up <n> [--<before|after> prefix] name
+ * !tom-up <n> [--<before|after> prefix] name
  * Add an item to the list that counts up from n. By default this is added
  * to the current end of the order. If --before or --after is provided, the
  * argument is used as a prefix search for a name to put the item before or
  * after.
  *
- * !to-clean
+ * !tom-clean
  * Remove all elements with a counter of 0.
  */
 
@@ -36,11 +36,11 @@ var TurnOrderManager =
     "use strict";
 
     const scriptName = "TurnOrderManager";
-    const scriptVersion = "1.1.0";
+    const scriptVersion = "1.2.0";
 
     const COUNTER = {
       name: "ROUND",
-      value: 101
+      value: 1
     };
 
     // Get turn order object
@@ -104,6 +104,20 @@ var TurnOrderManager =
       });
     }
 
+    // Parse API command string
+    const parseArgs = (msg) => {
+      const params = msg.replace(/<br\/>/g, "").split(/\s+/);
+      const command = params[0] || "";
+      const args = {};
+      params.splice(1).forEach(param => {
+        const [ name, value ] = param.split("|");
+        if (!name.startsWith("--"))
+          return;
+        args[name.substring(2)] = value || "";
+      });
+      return { command, args };
+    }
+
     // Add an entry
     const addWithFormula = (msg, isGM, playerId, formula) => {
       const parts = msg.split(/\s+/);
@@ -147,23 +161,23 @@ var TurnOrderManager =
       }
     };
 
-    // !to-clear
+    // !tom-clear
     const handleClear = (msg, isGM, playerId) => {
       if (!isGM) {
         whisperToId(playerId, "Only the GM can clear turn data.");
         return;
       }
-      const param = msg.replace(/<br\/>/g, "").split(/\s+/).splice(1) || [];
+      const { args } = parseArgs(msg);
       const turns = Campaign().get("turnorder");
       setTurns([]);
       log(`${scriptName}: CLEARING: ${turns}`);
-      if (turns !== "[]" && !param.includes("--no-load"))
-        whisperToId("GM", `Turns cleared. To restore, run <code>!to-load ${turns}</code>`);
-      if (param.includes("--close"))
+      if (turns !== "[]" && !Object.keys(args).includes("no-load"))
+        whisperToId("GM", `Turns cleared. To restore, run <code>!tom-load ${turns}</code>`);
+      if (Object.keys(args).includes("close"))
         Campaign().set("initiativepage", false);
     };
 
-    // !to-load
+    // !tom-load
     const handleLoad = (msg, isGM, playerId) => {
       if (!isGM) {
         whisperToId(playerId, "Only the GM can load turn data.");
@@ -172,7 +186,7 @@ var TurnOrderManager =
       Campaign().set("turnorder", msg.split(/\s+/, 2)[1]);
     };
 
-    // !to-append
+    // !tom-append
     const handleAppend = (msg, isGM, playerId) => {
       if (!isGM) {
         whisperToId(playerId, "Only the GM can append turn data.");
@@ -188,44 +202,46 @@ var TurnOrderManager =
       }
     };
 
-    // !to-clean
+    // !tom-clean
     const handleClean = () => {
       let turns = getTurns();
       turns = _.filter(turns, (t) => t.pr <= 0);
       setTurns(turns);
     };
 
-    // !to-begin | !to-start
+    // !tom-begin | !tom-start
     const handleBegin = (msg, isGM) => {
       if (!isGM) {
         whisperToId(playerId, "Only the GM can start the counter.");
         return;
       }
 
+      const { args } = parseArgs(msg);
+
       let turns = getTurns();
       turns = _.filter(turns, (t) => t.custom !== COUNTER.name);
       turns = _.sortBy(turns, (t) => -t.pr);
       turns.unshift({ 
         id: "-1", 
-        custom: COUNTER.name, 
-        pr: COUNTER.value, 
+        custom: args["counter-name"] || COUNTER.name, 
+        pr: args["counter-value"] || COUNTER.value, 
         formula: "+1" }
       );
 
       setTurns(turns);
     };
 
-    // !to-up
+    // !tom-up
     const handleUp = (msg, isGM, playerId) => {
       addWithFormula(msg, isGM, playerId, "+1");
     };
 
-    // !to-down
+    // !tom-down
     const handleDown = (msg, isGM, playerId) => {
       addWithFormula(msg, isGM, playerId, "-1");
     };
 
-    // !to-remove | !to-rm
+    // !tom-remove | !tom-rm
     const handleRemove = (msg, isGM, playerId) => {
       const parts = msg.split(/\s+/, 2);
       const prefix = parts[1];
@@ -266,9 +282,14 @@ var TurnOrderManager =
 
     // Handle API messages
     const handleMessage = (msg) => {
-      if (msg.type != "api" || !msg.content.startsWith("!to-")) 
+      if (msg.type != "api" || !msg.content.startsWith("!tom-")) 
         return;
-      const cmd = msg.content.split(/\s+/)[0].substring(4);
+      const cmd = msg.content.split(/\s+/)[0].substring(5);
+      if (cmd.toLowerCase() === "help") {
+        const help = Object.keys(Object.fromEntries(handlers)).map(c => `!tom-${c}`).join(", ");
+        whisperToId(msg.playerid, `Usage: ${help}`);
+        return;
+      }
       const handler = handlers.get(cmd) || "";
       if (handler !== "") {
         handler(msg.content, playerIsGM(msg.playerid), msg.playerid);
