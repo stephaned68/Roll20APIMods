@@ -1,13 +1,13 @@
 /**
  * @name Corpse
  * @author stephaned68
- * @version 1.2.0
+ * @version 1.3.0
  * 
  * @description Handle dead tokens
  */
 on('ready', () => {
 
-  const MOD_VERSION = "1.2.0";
+  const MOD_VERSION = "1.3.0";
   
   const STATEKEY = "Corpse";
 
@@ -19,6 +19,7 @@ on('ready', () => {
   const DEF_HEALTH_BAR_VALUE = "bar1_value";
   const DEF_TOKEN_TINT = 1;
   const DEF_TOKEN_BURY = 1;
+  const DEF_DEATH_FX = "bomb-blood";
 
   const HALF_HEALTH_TINT = "ED2939";
 
@@ -32,6 +33,7 @@ on('ready', () => {
     TokenMarker: "Nom du marker",
     TokenTint: "Changer la teinte",
     BuryToken: "Enfouir le jeton",
+    DeathFX: "FX 0 santé"
   }
 
   /**
@@ -93,9 +95,16 @@ on('ready', () => {
       `{{${LANG.TokenMarker}=${ getParam("TokenMarker", DEF_TOKEN_MARKER) } [Change](${CHAT_COMMAND} marker|?{${LANG.TokenMarker}}) }}`,
       `{{${LANG.TokenTint}=${ (getParam("TokenTint", DEF_TOKEN_TINT) === 1) ? "*On* [Off]" : "*Off* [On]" }(${CHAT_COMMAND} tint) }}`,
       `{{${LANG.BuryToken}=${ (getParam("TokenBury", DEF_TOKEN_BURY) === 1) ? "*On* [Off]" : "*Off* [On]" }(${CHAT_COMMAND} bury) }}`,
+      `{{${LANG.DeathFX}=${ getParam("DeathFX", DEF_DEATH_FX) } [Change](${CHAT_COMMAND} deathfx|?{${LANG.DeathFX}}) }}`,
     ].join(" ");
     writeChat(helpMsg);
   }
+
+  /**
+   * Return name of dead marker virtual property
+   * @returns {string}
+   */
+  const deadStatus = () => `status_${ getParam("TokenMarker", DEF_TOKEN_MARKER) }`;
 
   /**
    * Bury a token
@@ -126,11 +135,10 @@ on('ready', () => {
    * Bury tokens that have the dead marker set
    */
   const buryDead = function() {
-    const deadStatus = `status_${ getParam("TokenMarker", DEF_TOKEN_MARKER) }`;
     const deadTokens = findObjs({
       _type: "graphic",
 			_subtype: "token",
-			[deadStatus]: true,
+			[deadStatus()]: true,
 			layer: "objects",
       _pageid: Campaign().get("playerpageid"),
     });
@@ -175,6 +183,9 @@ on('ready', () => {
           setParam("TokenBury", bury);
         }
         break;
+      case "deathfx":
+        setParam("DeathFX", value);
+        break;
       case "reset":
         state[STATEKEY] = {};
         break;
@@ -198,12 +209,14 @@ on('ready', () => {
     if (health > 0) {
       const maxHealth = parseInt(token.get(bar.replace("_value", "_max"))) || 0;
       const tint_color = health <= Math.floor(maxHealth/2) ? HALF_HEALTH_TINT : "transparent";
-      token.set({ tint_color });
+      token.set({ [deadStatus()]: false, tint_color });
       return;
     }
-    const deadMarker = getParam("TokenMarker", DEF_TOKEN_MARKER);
+    const deathFX = getParam("DeathFX", DEF_DEATH_FX);
+    if (deathFX)
+      spawnFx(token.get("left"), token.get("top"), deathFX);
     let logMsg = token.get("name") + " is dead";
-    token.set({ "statusmarkers": deadMarker, [healthBar]: 0 });
+    token.set({ [deadStatus()]: true, [healthBar]: 0 });
     if (getParam("TokenBury", DEF_TOKEN_BURY) === 1 && linkedTo === "") {
       bury(token);
       logMsg += " & buried";
@@ -241,7 +254,8 @@ on('ready', () => {
     { name: "TokenMarker", default: DEF_TOKEN_MARKER },
     { name: "TokenBar", default: DEF_HEALTH_BAR_VALUE },
     { name: "TokenTint", default: DEF_TOKEN_TINT },
-    { name: "TokenBury", default: DEF_TOKEN_BURY }
+    { name: "TokenBury", default: DEF_TOKEN_BURY },
+    { name: "DeathFX", default: DEF_DEATH_FX },
   ].reduce((configAll, config) => {
     configAll += " | " + config.name + "=" + getParam(config.name, config.default);
     return configAll;

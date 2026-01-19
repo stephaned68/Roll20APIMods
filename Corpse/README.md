@@ -1,14 +1,14 @@
-# Corps
+# Corpse
 
 Un script MOD pour Roll20 permettant de détecter la valeur de la barre de vie / santé d'un token et :
 - si elle tombe à la moitié du maximum, de lui appliquer une teinte de fond rouge
-- si elle tombe à 0, de lui appliquer un marker "Mort" ainsi qu'optionnellement l'_enfouir_
+- si elle tombe à 0, de lui appliquer un marker "Mort" ainsi qu'optionnellement jouer un FX et l'_enfouir_ 
 
 _Enfouir_ un token consiste à lui appliquer une teinte noire et à le déplacer sur la couche de la carte.
 
 ## Version courante
 
-v1.2.0
+v1.3.0
 
 # Utilisation
 
@@ -19,8 +19,13 @@ Les paramètres suivants peuvent être changés :
 - Token Marker "Mort" à appliquer quand la valeur de la barre de santé tombe à 0 ou moins (par défaut : <kbd>dead</kbd>)
 - Changer la teinte : Oui (par défaut) / Non ; une teinte de fond rouge est appliquée au jeton quand la valeur de la barre de santé tombe à la moitié de la valeur maximum
 - Enfouir le jeton : Oui (par défaut) / Non ; cette action ne se produit que pour les mooks (PNJ dont la barre de vie n'est liée à aucun attribut)
+- FX "Mort" à appliquer quand la valeur de la barre de santé tombe à 0 ou moins (par défaut : <kbd>bomb-blood</kbd>)
 
 # Notes de version
+
+## v1.3.0 (2026-01-19)
+
+- Ajout d'un FX configurable à jouer lorsque la barre de santé tombe à 0.
 
 ## v1.2.0 (2025-09-08)
 
