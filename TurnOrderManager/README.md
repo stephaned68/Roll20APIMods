@@ -1,6 +1,6 @@
-# TurnOrderManager version 1.2.0
+# TurnOrderManager version 1.4.0
 
-Ce script permet de simplifier la gestion du Turn Order à l'aide de commande de chat.
+Ce script permet de simplifier la gestion du Turn Order Roll20 à l'aide de commandes de chat.
 
 ## Commandes
 
@@ -45,3 +45,7 @@ Ajoute des éléments au Turn Order à partir d'un bloc de données JSON sérial
 ## Notes sur les autorisations
 
 Les commandes d'effacement et de chargement du Turn Order ainsi que le démarrage d'une rencontre sont des fonctions limitées au MJ.
+
+## Fonctionnalités additionnelles
+
+Lorsque le nom d'un tour personnalisé contient une expression de dé (ex: `Armée des Morts 2d6 DM`), il est automatiquement détecté, remplacé par un inline-roll (ex: `Armée des Morts [[2d6]] DM`), et murmuré au MJ dans le chat.

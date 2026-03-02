@@ -1,7 +1,7 @@
 /**
  * @name TurnOrderManager
  * @author stephaned68
- * @version 1.2.0
+ * @version 1.4.0
  *
  * Script to simplify Turn Order Management, and move it into chat.
  * Commands:
@@ -28,6 +28,9 @@
  *
  * !tom-clean
  * Remove all elements with a counter of 0.
+ *
+ * !tom-roll
+ * Roll an effect in chat on custom turn
  */
 
 var TurnOrderManager =
@@ -36,7 +39,7 @@ var TurnOrderManager =
     "use strict";
 
     const scriptName = "TurnOrderManager";
-    const scriptVersion = "1.2.0";
+    const scriptVersion = "1.4.0";
 
     const COUNTER = {
       name: "ROUND",
@@ -265,7 +268,7 @@ var TurnOrderManager =
       const name = itemName(turns[i]) || "that item";
       whisperToId(playerId, `You do not have permission to remove ${name}. Please ask the GM to do it.`);
     };
-
+    
     // Handlers Map
     const handlers = new Map([
       [ "clear", handleClear ],
@@ -302,6 +305,15 @@ var TurnOrderManager =
     // Register chat message handler
     const registerHandlers = () => {
       on("chat:message", handleMessage);
+      on('change:campaign:turnorder', () => {
+        const to = Campaign().get('turnorder') === "" ? [] : JSON.parse(Campaign().get('turnorder'));
+        if (to.length === 0)
+          return;
+        const name = itemName(to[0]);
+        const matched = name.match(/([1-9]+[dD][0-9]+[+-]?.*[ ]+)/);
+        if (matched)
+          whisperToId("gm", name.replace(matched[1],"[[" + matched[1] + "]]"));
+      });
     };
 
     // Log script startup
