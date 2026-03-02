@@ -1,7 +1,7 @@
 /**
  * @name TurnOrderManager
  * @author stephaned68
- * @version 1.4.0
+ * @version 1.3.0
  *
  * Script to simplify Turn Order Management, and move it into chat.
  * Commands:
@@ -39,7 +39,7 @@ var TurnOrderManager =
     "use strict";
 
     const scriptName = "TurnOrderManager";
-    const scriptVersion = "1.4.0";
+    const scriptVersion = "1.3.0";
 
     const COUNTER = {
       name: "ROUND",

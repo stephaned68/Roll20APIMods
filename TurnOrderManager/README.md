@@ -1,4 +1,4 @@
-# TurnOrderManager version 1.4.0
+# TurnOrderManager version 1.3.0
 
 Ce script permet de simplifier la gestion du Turn Order Roll20 à l'aide de commandes de chat.
 
