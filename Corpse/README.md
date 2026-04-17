@@ -8,7 +8,13 @@ _Enfouir_ un token consiste à lui appliquer une teinte noire et à le déplacer
 
 ## Version courante
 
-v1.3.0
+v1.4.0
+
+# Installation
+
+Le script n'est pas disponible dans la bibliothèque d'installation en un clic de Roll20.
+
+Vous devez suivre [ces instructions](https://help.roll20.net/hc/en-us/articles/360037256714-Introduction-to-Mod-Scripts-API#API-HowdoIinstallanAPIscriptifIwanttowritemyowncodeorIwanttousecodefromanexternalsource?) pour installer le script dans une partie.
 
 # Utilisation
 
@@ -22,6 +28,10 @@ Les paramètres suivants peuvent être changés :
 - FX "Mort" à appliquer quand la valeur de la barre de santé tombe à 0 ou moins (par défaut : <kbd>bomb-blood</kbd>)
 
 # Notes de version
+
+## v1.4.0 (2026-04-17)
+
+- Configuration du script via le handout `CorpseConfig`
 
 ## v1.3.0 (2026-01-19)
 

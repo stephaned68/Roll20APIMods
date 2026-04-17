@@ -1,13 +1,13 @@
 /**
  * @name Corpse
  * @author stephaned68
- * @version 1.3.0
+ * @version 1.4.0
  * 
  * @description Handle dead tokens
  */
 on('ready', () => {
 
-  const MOD_VERSION = "1.3.0";
+  const MOD_VERSION = "1.4.0";
   
   const STATEKEY = "Corpse";
 
@@ -25,15 +25,18 @@ on('ready', () => {
 
   const CHAT_COMMAND = "!corpse";
 
+  const CONFIG_HANDOUT = "CorpseConfig";
+
   /**
    * Localisation here...
    */
   const LANG = {
-    HealthBar: "Barre de santé",
+    HealthBar: "No barre de santé",
     TokenMarker: "Nom du marker",
     TokenTint: "Changer la teinte",
     BuryToken: "Enfouir le jeton",
-    DeathFX: "FX 0 santé"
+    DeathFX: "FX 0 santé",
+    ChangeButton: "Changer"
   }
 
   /**
@@ -82,6 +85,88 @@ on('ready', () => {
    */
   const writeLog = function(logText) {
     log(`MOD:Corpse ${logText}`);
+  }
+
+  const style = function(styles) {
+    return "style=\"" + Object.entries(styles).map(([ name, value ]) => `${name}: ${value}`).join("; ") + ";\"";
+  }
+
+  const configHandout = function() {
+    let handout = findObjs({
+      _type: "handout",
+      name: CONFIG_HANDOUT
+    })[0];
+    if (!handout) {
+      handout = createObj("handout", {
+        name: CONFIG_HANDOUT,
+      });
+      const id = handout?.get("_id");
+      if (id)
+        writeChat(`/w gm Utilisez [${CONFIG_HANDOUT}](http://journal.roll20.net/handout/${id}) pour configurer le script MOD **Corpse**`);
+    }
+    if (!handout)
+      return;
+    
+    const collapse = "border-collapse: collapse;";
+
+    const buttonStyle = style({
+      "background-color": "steelblue",
+      "color": "white",
+      "border-radius": "5px",
+      "padding": "5px",
+      "text-decoration": "none",
+    });
+
+    const config = [
+      { 
+        label: LANG.HealthBar,
+        value: getParam("TokenBar", DEF_HEALTH_BAR_VALUE),
+        command: `${CHAT_COMMAND} bar|?{${LANG.HealthBar}}`,
+        action: LANG.ChangeButton
+      },
+      { 
+        label: LANG.TokenMarker,
+        value: getParam("TokenMarker", DEF_TOKEN_MARKER),
+        command: `${CHAT_COMMAND} marker|?{${LANG.TokenMarker}}`,
+        action: LANG.ChangeButton
+      },
+      { 
+        label: LANG.TokenTint,
+        value: "",
+        command: `${CHAT_COMMAND} tint`,
+        action: (getParam("TokenTint", DEF_TOKEN_TINT) === 1 ? "Off" : "On")
+      },
+      { 
+        label: LANG.BuryToken,
+        value: "",
+        command: `${CHAT_COMMAND} bury`,
+        action: (getParam("TokenBury", DEF_TOKEN_BURY) === 1 ? "Off" : "On")
+      },
+      { 
+        label: LANG.DeathFX,
+        value: getParam("DeathFX", DEF_DEATH_FX),
+        command: `${CHAT_COMMAND} deathfx|?{${LANG.DeathFX}}`,
+        action: LANG.ChangeButton
+      },
+    ].map(option => `
+      <tr style="${collapse}">
+        <td style="${collapse}">${option.label}</td>
+        <td style="${collapse}"><strong>${option.value}<strong></td>
+        <td style="${collapse}">
+          <a href="\`${option.command}" ${buttonStyle}>${option.action}</a>
+        </td>
+      </tr>`
+    ).join("");
+    const content = `
+    <h1>Corpse</h1>
+    <p>
+    Ce script MOD permet de détecter les changements de la barre de santé des tokens et de leur appliquer divers effets.
+    </p>
+    <table style="${collapse}">
+    ${config}
+    </table>
+    `;
+    handout.set("notes", content);
   }
 
   /**
@@ -153,7 +238,7 @@ on('ready', () => {
   const handleInput = function(chatMsg) {
     const param = chatMsg.content.replace(/<br\/>/g, "").split(/\s+/)[1];
     if (!param) {
-      displayConfig();
+      configHandout();
       return;
     }
     let changed = true;
@@ -191,7 +276,7 @@ on('ready', () => {
         break;
     }
     if (changed)
-      displayConfig();
+      configHandout();
   }
 
   /**
@@ -262,4 +347,5 @@ on('ready', () => {
   }, "");
   writeLog(`version ${MOD_VERSION} running${config}`);
 
+  configHandout();
 });
