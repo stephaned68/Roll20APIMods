@@ -14,9 +14,10 @@ on('ready', () => {
   HEALTH_BAR1 = "bar1_value";
   HEALTH_BAR2 = "bar2_value";
   HEALTH_BAR3 = "bar3_value";
+  HEALTH_BAR4 = "bar4_value";
 
   const DEF_TOKEN_MARKER = "dead";
-  const DEF_HEALTH_BAR_VALUE = "bar1_value";
+  const DEF_HEALTH_BAR_VALUE = "bar3_value";
   const DEF_TOKEN_TINT = 1;
   const DEF_TOKEN_BURY = 1;
   const DEF_DEATH_FX = "bomb-blood";
@@ -79,11 +80,18 @@ on('ready', () => {
     );
   }
 
+  const serialize = function(o) {
+    return Object.entries(o).map(([k, v]) => k + "=" + v).join(", ");
+  }
+
   /**
    * Send a message to sandbox log 
    * @param {string} logText - log message
    */
   const writeLog = function(logText) {
+    if (typeof logText === "object") {
+      logText = serialize(logText);
+    }
     log(`MOD:Corpse ${logText}`);
   }
 
@@ -107,10 +115,10 @@ on('ready', () => {
     if (!handout)
       return;
     
-    const collapse = "border-collapse: collapse;";
+    const noBorders = "border-style: none; border-collapse: collapse;";
 
     const buttonStyle = style({
-      "background-color": "steelblue",
+      "background-color": "#999",
       "color": "white",
       "border-radius": "5px",
       "padding": "5px",
@@ -119,50 +127,56 @@ on('ready', () => {
 
     const config = [
       { 
+        title: "Indiquer le numéro de la barre de santé des tokens (1 à 4)",
         label: LANG.HealthBar,
         value: getParam("TokenBar", DEF_HEALTH_BAR_VALUE),
         command: `${CHAT_COMMAND} bar|?{${LANG.HealthBar}}`,
         action: LANG.ChangeButton
       },
       { 
+        title: "Indiquer un marker à appliquer à un token quand sa barre de santé atteint 0",
         label: LANG.TokenMarker,
         value: getParam("TokenMarker", DEF_TOKEN_MARKER),
         command: `${CHAT_COMMAND} marker|?{${LANG.TokenMarker}}`,
         action: LANG.ChangeButton
       },
       { 
+        title: "Indiquer si une teinte rouge doit être appliquée à un token quand sa barre de santé devient inférieure à la moitié sa valeur maximum",
         label: LANG.TokenTint,
-        value: "",
+        value: (getParam("TokenTint", DEF_TOKEN_TINT) === 1 ? "✅" : "❌"),
         command: `${CHAT_COMMAND} tint`,
         action: (getParam("TokenTint", DEF_TOKEN_TINT) === 1 ? "Off" : "On")
       },
       { 
+        title: "Indiquer si le token d'un mook doit être enfoui quand sa barre de santé atteint 0",
         label: LANG.BuryToken,
-        value: "",
+        value: (getParam("TokenBury", DEF_TOKEN_BURY) === 1 ? "✅" : "❌"),
         command: `${CHAT_COMMAND} bury`,
         action: (getParam("TokenBury", DEF_TOKEN_BURY) === 1 ? "Off" : "On")
       },
       { 
+        title: "Indiquer le nom d'un FX à jouer quand la barre de santé atteint 0",
         label: LANG.DeathFX,
         value: getParam("DeathFX", DEF_DEATH_FX),
         command: `${CHAT_COMMAND} deathfx|?{${LANG.DeathFX}}`,
         action: LANG.ChangeButton
       },
     ].map(option => `
-      <tr style="${collapse}">
-        <td style="${collapse}">${option.label}</td>
-        <td style="${collapse}"><strong>${option.value}<strong></td>
-        <td style="${collapse}">
+      <tr style="${noBorders}" title="${option.title}">
+        <td style="${noBorders}">${option.label}</td>
+        <td style="${noBorders}"><strong>${option.value}<strong></td>
+        <td style="${noBorders}">
           <a href="\`${option.command}" ${buttonStyle}>${option.action}</a>
         </td>
       </tr>`
     ).join("");
     const content = `
-    <h1>Corpse</h1>
+    <h1>Corpse v${MOD_VERSION}</h1>
+    <p>Par stephaned68</p>
     <p>
     Ce script MOD permet de détecter les changements de la barre de santé des tokens et de leur appliquer divers effets.
     </p>
-    <table style="${collapse}">
+    <table style="${noBorders}">
     ${config}
     </table>
     `;
@@ -197,7 +211,7 @@ on('ready', () => {
    * @returns {void}
    */
   const bury = function(token) {
-    token.set({ layer: "map", tint_color: "000000" });
+    token.set({ layer: "map", tint_color: "#000000" });
   }
 
   /**
@@ -291,20 +305,23 @@ on('ready', () => {
       return;
     const linkedTo = token.get(bar.replace("_value", "_link")) || "";
     const health = parseInt(token.get(healthBar)) || 0;
+    let logMsg = token.get("name");
     if (health > 0) {
       const maxHealth = parseInt(token.get(bar.replace("_value", "_max"))) || 0;
-      const tint_color = health <= Math.floor(maxHealth/2) ? HALF_HEALTH_TINT : "transparent";
-      token.set({ [deadStatus()]: false, tint_color });
-      return;
-    }
-    const deathFX = getParam("DeathFX", DEF_DEATH_FX);
-    if (deathFX)
-      spawnFx(token.get("left"), token.get("top"), deathFX);
-    let logMsg = token.get("name") + " is dead";
-    token.set({ [deadStatus()]: true, [healthBar]: 0 });
-    if (getParam("TokenBury", DEF_TOKEN_BURY) === 1 && linkedTo === "") {
-      bury(token);
-      logMsg += " & buried";
+      const tint_color = health <= Math.floor(maxHealth/2) ? "#" + HALF_HEALTH_TINT : "transparent";
+      const updates = { [deadStatus()]: false, tint_color };
+      token.set(updates);
+      logMsg += (tint_color === "transparent" ? "" : " is bloodied" );
+    } else {
+      const deathFX = getParam("DeathFX", DEF_DEATH_FX);
+      if (deathFX)
+        spawnFx(token.get("left"), token.get("top"), deathFX, Campaign().get('playerpageid'));
+      logMsg += " is dead";
+      token.set({ [deadStatus()]: true, [healthBar]: 0 });
+      if (getParam("TokenBury", DEF_TOKEN_BURY) === 1 && linkedTo === "") {
+        bury(token);
+        logMsg += " & buried";
+      }
     }
     writeLog(logMsg);
   }
@@ -321,7 +338,10 @@ on('ready', () => {
   on(`change:token:${HEALTH_BAR3}`, function(token) {
     processToken(HEALTH_BAR3, token);
   });
-
+  on(`change:token:${HEALTH_BAR4}`, function(token) {
+    processToken(HEALTH_BAR4, token);
+  });
+  
   /**
    * Handle chat messages
    */
