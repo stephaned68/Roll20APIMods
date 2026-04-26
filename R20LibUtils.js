@@ -2,6 +2,7 @@ var R20LibUtils =
 R20LibUtils ||
   (function () {
 
+    const MOD_NAME = "MOD";
     const MOD_VERSION = "1.0.0";
 
     /**
@@ -184,6 +185,68 @@ R20LibUtils ||
       },
     };
 
+    /**
+     * @typedef configOption
+     * @property {string} label - name of the config option
+     * @property {string} title - tooltip for the config option
+     * @property {string} value - current value of the config option
+     * @property {string} command - MOD chat command to change the option value
+     * @property {string} action - button label for the config option
+     */
+
+    /**
+     * Create & Update configuration handout
+     * @param {string} handoutName - handout name
+     * @param {configOption[]} config - configuration array
+     * @returns {void}
+     */
+    const configHandout = function(handoutName, config) {
+      let handout = findObjs({
+        _type: "handout",
+        name: handoutName
+      })[0];
+      if (!handout) {
+        handout = createObj("handout", {
+          name: handoutName,
+        });
+        const id = handout?.get("_id");
+        if (id)
+          writeChat(`/w gm Utilisez [${handoutName}](http://journal.roll20.net/handout/${id}) pour configurer le script MOD **${MOD_NAME}**`);
+      }
+      if (!handout)
+        return;
+
+      const noBorders = HTML.getStyle({ borderStyle: "none", borderCollapse: "collapse" });
+
+      const buttonStyle = HTML.getStyle({
+        backgroundColor: "#999",
+        color: "white",
+        borderRadius: "5px",
+        padding: "5px",
+        textDecoration: "none",
+      });
+      let content = config.map(option => `
+        <tr style="${noBorders}" title="${option.title}">
+          <td style="${noBorders}">${option.label}</td>
+          <td style="${noBorders}"><strong>${option.value}<strong></td>
+          <td style="${noBorders}">
+            <a href="\`${option.command}" ${buttonStyle}>${option.action}</a>
+          </td>
+        </tr>`
+      ).join("");
+
+      content = `
+        <h1>${MOD_NAME} v${MOD_VERSION}</h1>
+        <p>
+        ...
+        </p>
+        <table style="${noBorders}">
+          ${content}
+        </table>
+      `;
+      handout.set("notes", content);
+    }
+    
     return {
       version: MOD_VERSION,
       int,
